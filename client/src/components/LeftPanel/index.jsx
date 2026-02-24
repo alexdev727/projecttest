@@ -9,7 +9,7 @@
  *   - Клик по элементу → выбор (перенос вправо)
  */
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { fetchItems, queueSelectItem, queueAddItem } from '../../api/queue';
 import { useInfiniteScroll } from '../../hooks/useInfiniteScroll';
 import { useDebounce } from '../../hooks/useDebounce';
@@ -60,20 +60,6 @@ export default function LeftPanel({ onItemSelected }) {
   }, [loading, hasMore, offset, debouncedFilter, loadItems]);
 
   const sentinelRef = useInfiniteScroll(loadMore, hasMore && !loading);
-
-  // Периодическое обновление данных (1 раз в секунду)
-  // Нужно чтобы список отражал реальное состояние после батч-выполнения
-  const refreshTimerRef = useRef(null);
-  useEffect(() => {
-    refreshTimerRef.current = setInterval(() => {
-      setItems([]);
-      setOffset(0);
-      setHasMore(true);
-      loadItems(0, debouncedFilter, true);
-    }, 1_000);
-
-    return () => clearInterval(refreshTimerRef.current);
-  }, [debouncedFilter, loadItems]);
 
   // ─── Выбор элемента ─────────────────────────────────────────────────────
 

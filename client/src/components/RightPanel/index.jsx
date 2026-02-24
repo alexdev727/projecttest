@@ -14,7 +14,7 @@
  *   - Отправляем полный массив на сервер через очередь
  */
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -85,19 +85,6 @@ export default function RightPanel({ refreshTrigger }) {
       loadItems(0, debouncedFilter, true);
     }
   }, [refreshTrigger, debouncedFilter, loadItems]);
-
-  // Периодическое обновление данных
-  const refreshTimerRef = useRef(null);
-  useEffect(() => {
-    refreshTimerRef.current = setInterval(() => {
-      setAllItems([]);
-      setOffset(0);
-      setHasMore(true);
-      loadItems(0, debouncedFilter, true);
-    }, 1_000);
-
-    return () => clearInterval(refreshTimerRef.current);
-  }, [debouncedFilter, loadItems]);
 
   const loadMore = useCallback(() => {
     if (!loading && hasMore) {
