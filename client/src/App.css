@@ -1,0 +1,67 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #f0f2f8;
+  color: #333;
+  min-height: 100vh;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.app-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 20px 0 16px;
+  flex-shrink: 0;
+}
+
+.app-header h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.app-subtitle {
+  font-size: 13px;
+  color: #888;
+}
+
+.app-panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+  padding-bottom: 16px;
+}
+
+/* Скроллбар */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c5cfe8;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4a6fa5;
+}
