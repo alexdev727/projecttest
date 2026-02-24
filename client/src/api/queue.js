@@ -7,13 +7,13 @@
  *   - Дедупликация: повторный вызов с тем же ключом игнорируется
  */
 
-const BASE_URL = '/api';
+const BASE_URL = "/api";
 
 // ─── Утилита для HTTP запросов ───────────────────────────────────────────────
 
 async function apiFetch(url, options = {}) {
   const response = await fetch(`${BASE_URL}${url}`, {
-    headers: { 'Content-Type': 'application/json' },
+    headers: { "Content-Type": "application/json" },
     ...options,
   });
 
@@ -34,8 +34,8 @@ class BatchQueue {
    * @param {number}   intervalMs  — интервал батча
    */
   constructor(name, executeFn, intervalMs) {
-    this.name       = name;
-    this.executeFn  = executeFn;
+    this.name = name;
+    this.executeFn = executeFn;
     this.intervalMs = intervalMs;
 
     /** @type {Map<string, any>} */
@@ -82,26 +82,30 @@ class BatchQueue {
 // ─── Экземпляры очередей ────────────────────────────────────────────────────
 
 const addQueue = new BatchQueue(
-  'ADD',
-  (id) => apiFetch('/items', { method: 'POST', body: JSON.stringify({ id }) }),
+  "ADD",
+  (id) => apiFetch("/items", { method: "POST", body: JSON.stringify({ id }) }),
   10_000,
 );
 
 const selectQueue = new BatchQueue(
-  'SELECT',
-  (id) => apiFetch(`/selected/${id}`, { method: 'POST' }),
+  "SELECT",
+  (id) => apiFetch(`/selected/${id}`, { method: "POST" }),
   1_000,
 );
 
 const deselectQueue = new BatchQueue(
-  'DESELECT',
-  (id) => apiFetch(`/selected/${id}`, { method: 'DELETE' }),
+  "DESELECT",
+  (id) => apiFetch(`/selected/${id}`, { method: "DELETE" }),
   1_000,
 );
 
 const reorderQueue = new BatchQueue(
-  'REORDER',
-  (order) => apiFetch('/selected/reorder', { method: 'PUT', body: JSON.stringify({ order }) }),
+  "REORDER",
+  (order) =>
+    apiFetch("/selected/reorder", {
+      method: "PUT",
+      body: JSON.stringify({ order }),
+    }),
   1_000,
 );
 
@@ -124,17 +128,23 @@ export function queueDeselectItem(id) {
 }
 
 export function queueReorder(order) {
-  reorderQueue.override('reorder', order);
+  reorderQueue.override("reorder", order);
 }
 
 // ─── Прямые GET-запросы (без очереди — это чтение данных) ──────────────────
 
 export function fetchItems(filter, offset) {
-  const params = new URLSearchParams({ filter, offset, limit: 20 });
-  return apiFetch(`/items?${params}`);
+  const params = new URLSearchParams();
+  if (filter != null && filter !== "") params.set("filter", filter);
+  if (offset != null) params.set("offset", String(offset));
+  params.set("limit", "20");
+  return apiFetch(`/items?${params.toString()}`);
 }
 
 export function fetchSelected(filter, offset) {
-  const params = new URLSearchParams({ filter, offset, limit: 20 });
-  return apiFetch(`/selected?${params}`);
+  const params = new URLSearchParams();
+  if (filter != null && filter !== "") params.set("filter", filter);
+  if (offset != null) params.set("offset", String(offset));
+  params.set("limit", "20");
+  return apiFetch(`/selected?${params.toString()}`);
 }

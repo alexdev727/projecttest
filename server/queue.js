@@ -43,12 +43,18 @@ class OperationQueue {
    */
   enqueue(key, payload) {
     if (this.pending.has(key)) {
-      console.log(`[Queue:${this.type}] Дедупликация: ключ "${key}" уже есть`);
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`[Queue:${this.type}] Дедупликация: ключ "${key}" уже есть`);
+      }
       return false;
     }
 
     this.pending.set(key, payload);
-    console.log(`[Queue:${this.type}] Добавлено: "${key}", ожидает ${this.pending.size} операций`);
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(
+        `[Queue:${this.type}] Добавлено: "${key}", в батче сейчас ${this.pending.size} операций`,
+      );
+    }
     return true;
   }
 
@@ -58,7 +64,9 @@ class OperationQueue {
   flush() {
     if (this.pending.size === 0) return;
 
-    console.log(`[Queue:${this.type}] Выполняем батч из ${this.pending.size} операций`);
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`[Queue:${this.type}] Выполняем батч из ${this.pending.size} операций`);
+    }
 
     for (const [key, payload] of this.pending) {
       try {
