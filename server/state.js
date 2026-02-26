@@ -116,20 +116,29 @@ function deselectItem(id) {
 
 /**
  * Применяет новый порядок выбранных элементов (после Drag&Drop).
- * Принимает полный массив ID в новом порядке.
+ * Может принимать как полный, так и частичный массив ID в новом порядке.
+ * Элементы, которые не попали в newOrder, сохраняют свой относительный порядок
+ * и добавляются в конец.
  * @param {number[]} newOrder
  * @returns {boolean} true если порядок применён
  */
 function reorderSelected(newOrder) {
-  // Проверяем что входящий массив содержит те же ID что и selectedOrder
-  if (newOrder.length !== selectedOrder.length) return false;
+  if (!Array.isArray(newOrder)) return false;
+  if (newOrder.length === 0) return true;
 
   const newSet = new Set(newOrder);
-  for (const id of selectedIds) {
-    if (!newSet.has(id)) return false;
+  // Защита от дубликатов
+  if (newSet.size !== newOrder.length) return false;
+
+  // Все ID из newOrder должны быть реально выбраны
+  for (const id of newOrder) {
+    if (!selectedIds.has(id)) return false;
   }
 
-  selectedOrder = newOrder;
+  // Остальные выбранные ID, которые не попали в newOrder, добавляем в конец,
+  // сохраняя их текущий относительный порядок.
+  const tail = selectedOrder.filter(id => !newSet.has(id));
+  selectedOrder = [...newOrder, ...tail];
   return true;
 }
 
