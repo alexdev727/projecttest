@@ -37,9 +37,16 @@ import styles from './RightPanel.module.css';
 
 const PAGE_SIZE = 20;
 
-export default function RightPanel({ refreshTrigger }) {
+export default function RightPanel({ lastSelectedId }) {
   const [allItems, setAllItems]   = useState([]);  // полный список всех загруженных ID в нужном порядке
-  const [filter, setFilter]       = useState('');
+  const [filter, setFilter]       = useState(() => {
+    if (typeof window === 'undefined') return '';
+    try {
+      return window.localStorage.getItem('rightPanelFilter') || '';
+    } catch {
+      return '';
+    }
+  });
   const [offset, setOffset]       = useState(0);
   const [hasMore, setHasMore]     = useState(true);
   const [loading, setLoading]     = useState(false);
@@ -51,6 +58,15 @@ export default function RightPanel({ refreshTrigger }) {
       activationConstraint: { distance: 5 }, // начать перетаскивание после 5px
     })
   );
+
+  // Сохраняем фильтр при изменении
+  useEffect(() => {
+    try {
+      window.localStorage.setItem('rightPanelFilter', filter);
+    } catch (e) {
+      // игнорируем ошибки доступа к localStorage
+    }
+  }, [filter]);
 
   // ─── Загрузка данных ────────────────────────────────────────────────────
 
@@ -76,15 +92,14 @@ export default function RightPanel({ refreshTrigger }) {
     loadItems(0, debouncedFilter, true);
   }, [debouncedFilter, loadItems]);
 
-  // Обновление при добавлении нового элемента из левой панели
+  // Оптимистичное добавление элемента, выбранного в левой панели:
+  // сразу показываем его в правой, не дожидаясь батча на сервере.
   useEffect(() => {
-    if (refreshTrigger > 0) {
-      setAllItems([]);
-      setOffset(0);
-      setHasMore(true);
-      loadItems(0, debouncedFilter, true);
-    }
-  }, [refreshTrigger, debouncedFilter, loadItems]);
+    if (lastSelectedId == null) return;
+    setAllItems(prev =>
+      prev.includes(lastSelectedId) ? prev : [...prev, lastSelectedId],
+    );
+  }, [lastSelectedId]);
 
   const loadMore = useCallback(() => {
     if (!loading && hasMore) {

@@ -12,11 +12,11 @@ import RightPanel from './components/RightPanel';
 import './App.css';
 
 export default function App() {
-  // Инкрементируем при каждом выборе — RightPanel обновляется
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  // Храним последний выбранный ID для оптимистичного обновления правого столбца
+  const [lastSelectedId, setLastSelectedId] = useState(null);
 
-  const handleItemSelected = () => {
-    setRefreshTrigger(n => n + 1);
+  const handleItemSelected = (id) => {
+    setLastSelectedId(id);
   };
 
   return (
@@ -28,7 +28,7 @@ export default function App() {
 
       <main className="app-panels">
         <LeftPanel onItemSelected={handleItemSelected} />
-        <RightPanel refreshTrigger={refreshTrigger} />
+        <RightPanel lastSelectedId={lastSelectedId} />
       </main>
     </div>
   );
